@@ -82,7 +82,7 @@ jobs:
           target: prod                   
           platforms: linux/amd64,linux/arm64
           tags: |
-            temp/${{ github.repository_owner }}/${{ github.event.repository.name }}:pr-${{ github.event.number || github.run_id }}
+            temp/${{ toLower(github.repository) }}:pr-${{ github.event.number || github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -126,5 +126,5 @@ jobs:
       - name: Output pushed image refs
         run: |
           echo "Pushed images:"
-          echo "  ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest"
-          echo "  ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha }}"
+          echo "  ghcr.io/${{ toLower(github.repository) }}:latest"
+          echo "  ghcr.io/${{ toLower(github.repository) }}:${{ github.sha }}"
