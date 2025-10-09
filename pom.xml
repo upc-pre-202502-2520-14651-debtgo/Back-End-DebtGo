@@ -58,6 +58,13 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+    		<groupId>org.mockito</groupId>
+    		<artifactId>mockito-inline</artifactId>
+    		<version>5.2.0</version> <!-- ajustar versión si hace falta -->
+    		<scope>test</scope>
+		</dependency>
+
 		<!-- SpringDoc OpenAPI para Swagger UI -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
