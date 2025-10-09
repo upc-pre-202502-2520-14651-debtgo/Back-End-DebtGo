@@ -1,4 +1,4 @@
-name: CI → Build image → Publish to GHCR
+name: CI / CD
 
 # Permisos necesarios para publicar en ghcr
 permissions:
@@ -73,13 +73,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build image (WITHOUT pushing) — target: prod
+      - name: Build image (WITHOUT pushing) — target prod
         uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Dockerfile
-          push: false                    # <-- NO push here (PRs y push)
-          target: prod                   # <-- usar solo el stage "prod"
+          push: false                    
+          target: prod                   
           platforms: linux/amd64,linux/arm64
           tags: |
             temp/${{ github.repository_owner }}/${{ github.event.repository.name }}:pr-${{ github.event.number || github.run_id }}
