@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15
+    container_name: nango-iam-service-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-debtgo_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASS:-root}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-debtgo_db} -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  iam-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: nango-iam-service
+    volumes:
+      - ./:/app
+    env_file:
+      - .env/.env.development
+    ports:
+      - "${SERVER_PORT:-8081}:8081"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
