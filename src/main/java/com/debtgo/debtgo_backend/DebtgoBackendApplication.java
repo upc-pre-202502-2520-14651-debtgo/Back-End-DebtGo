@@ -20,7 +20,10 @@ public class DebtgoBackendApplication {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
-						.allowedOrigins("http://localhost:4200") // frontend Angular
+						.allowedOrigins(
+								"http://localhost:4200",
+								"https://frontend-debtogo.homeservergv.com"
+						) // frontend Angular
 						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 						.allowedHeaders("*")
 						.allowCredentials(true);
