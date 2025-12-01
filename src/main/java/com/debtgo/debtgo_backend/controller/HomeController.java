@@ -7,7 +7,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/home")
-@CrossOrigin(origins = "http://localhost:4200") 
+@CrossOrigin(origins = "*")
 public class HomeController {
 
     @GetMapping("/summary")
