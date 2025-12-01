@@ -2,7 +2,6 @@ package com.debtgo.debtgo_backend.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Entity
 @Table(name = "consultants")
@@ -13,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class Consultant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     private String fullName;

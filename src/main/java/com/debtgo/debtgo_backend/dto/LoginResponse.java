@@ -1,39 +1,37 @@
 package com.debtgo.debtgo_backend.dto;
 
-import com.debtgo.debtgo_backend.domain.user.User;
-
 public class LoginResponse {
     private boolean success;
     private String message;
-    private User user;
+    private Long id;
+    private String email;
+    private String role;
 
-    public LoginResponse(boolean success, String message, User user) {
+    public LoginResponse(boolean success, String message, Long id, String email, String role) {
         this.success = success;
         this.message = message;
-        this.user = user;
+        this.id = id;
+        this.email = email;
+        this.role = role;
     }
 
     public boolean isSuccess() {
         return success;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public Long getId() {
+        return id;
     }
 
-    public User getUser() {
-        return user;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public String getRole() {
+        return role;
     }
 }

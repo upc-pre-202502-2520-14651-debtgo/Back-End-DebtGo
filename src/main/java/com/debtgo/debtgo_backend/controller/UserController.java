@@ -1,48 +1,98 @@
 package com.debtgo.debtgo_backend.controller;
 
+import com.debtgo.debtgo_backend.domain.Consultant;
 import com.debtgo.debtgo_backend.domain.user.User;
 import com.debtgo.debtgo_backend.dto.LoginRequest;
-import com.debtgo.debtgo_backend.dto.LoginResponse;
 import com.debtgo.debtgo_backend.dto.RegisterRequest;
-import com.debtgo.debtgo_backend.dto.RegisterResponse;
-import com.debtgo.debtgo_backend.service.UserService;
+import com.debtgo.debtgo_backend.repository.UserRepository;
+import com.debtgo.debtgo_backend.repository.ConsultantRepository;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserRepository userRepository;
+    private final ConsultantRepository consultantRepository;
 
+    // ----------------------
+    // REGISTRO
+    // ----------------------
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
-        User newUser = new User();
-        newUser.setEmail(request.getEmail());
-        newUser.setPassword(request.getPassword());
-        newUser.setRole(request.getRole());
+    public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
 
-        User savedUser = userService.registerUser(newUser);
+        User user = new User();
+        user.setName(req.getName());
+        user.setEmail(req.getEmail());
+        user.setPassword(req.getPassword());
+        user.setRole(req.getRole());
 
-        return ResponseEntity.ok(
-                new RegisterResponse(true, "User registered successfully", savedUser));
+        User saved = userRepository.save(user);
+
+        if ("CONSULTANT".equalsIgnoreCase(saved.getRole())) {
+
+            Consultant c = Consultant.builder()
+                    .fullName(req.getName())
+                    .specialty("Sin definir")
+                    .experience("0 años")
+                    .description("Perfil en creación")
+                    .hourlyRate(0.0)
+                    .rating(0.0)
+                    .profileImage("default.jpg")
+                    .build();
+
+            consultantRepository.save(c);
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("id", saved.getId());
+        body.put("name", saved.getName());
+        body.put("email", saved.getEmail());
+        body.put("role", saved.getRole());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
+    // ----------------------
+    // LOGIN
+    // ----------------------
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        String email = loginRequest.getEmail();
-        String password = loginRequest.getPassword();
+    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
 
-        return userService.loginUser(email, password)
-                .map(u -> ResponseEntity.ok(new LoginResponse(true, "Login successful", u)))
-                .orElse(ResponseEntity.status(401).body(new LoginResponse(false, "Invalid credentials", null)));
+        User user = userRepository.findByEmail(req.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!user.getPassword().equals(req.getPassword())) {
+            throw new RuntimeException("Credenciales incorrectas");
+        }
+
+        Long consultantId = null;
+        if ("CONSULTANT".equals(user.getRole())) {
+            consultantId = consultantRepository.findById(user.getId())
+                    .map(Consultant::getId)
+                    .orElse(null);
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("id", user.getId());
+        body.put("email", user.getEmail());
+        body.put("role", user.getRole());
+        body.put("consultantId", consultantId);
+
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<User>> listUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<?> listUsers() {
+        return ResponseEntity.ok(userRepository.findAll());
     }
 }

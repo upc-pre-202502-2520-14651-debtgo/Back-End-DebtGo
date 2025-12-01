@@ -1,17 +1,13 @@
 package com.debtgo.debtgo_backend.controller;
 
-import com.debtgo.debtgo_backend.domain.Consultant;
 import com.debtgo.debtgo_backend.dto.ConsultantDto;
+import com.debtgo.debtgo_backend.dto.ConsultantServiceDto;
 import com.debtgo.debtgo_backend.dto.ConsultantSummaryDto;
-import com.debtgo.debtgo_backend.repository.ConsultantRepository;
 import com.debtgo.debtgo_backend.service.ConsultantAppService;
-import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -21,7 +17,6 @@ import java.util.List;
 public class ConsultantController {
 
     private final ConsultantAppService service;
-    private final ConsultantRepository consultantRepo;
 
     @GetMapping("/{id}")
     public ConsultantDto get(@PathVariable Long id) {
@@ -38,31 +33,30 @@ public class ConsultantController {
         return service.getSummary(id);
     }
 
-    @GetMapping("/metrics/{id}")
-    public Map<String, Object> metrics(@PathVariable Long id) {
-        return service.metrics(id);
+    @GetMapping("/{id}/services")
+    public List<ConsultantServiceDto> listServices(@PathVariable Long id) {
+        return service.byConsultant(id);
+    }
+
+    @PostMapping("/services")
+    public ConsultantServiceDto createService(@RequestBody ConsultantServiceDto dto) {
+        return service.createService(dto);
+    }
+
+    @PutMapping("/services/{id}")
+    public ConsultantServiceDto updateService(
+            @PathVariable Long id,
+            @RequestBody ConsultantServiceDto dto) {
+        return service.updateService(id, dto);
+    }
+
+    @DeleteMapping("/services/{id}")
+    public void deleteService(@PathVariable Long id) {
+        service.deleteService(id);
     }
 
     @GetMapping
-    public List<ConsultantDto> listAll() {
-        return consultantRepo.findAll()
-                .stream()
-                .map(c -> ConsultantDto.builder()
-                        .id(c.getId())
-                        .fullName(c.getFullName())
-                        .specialty(c.getSpecialty())
-                        .experience(c.getExperience())
-                        .description(c.getDescription())
-                        .profileImage(c.getProfileImage())
-                        .rating(c.getRating())
-                        .hourlyRate(c.getHourlyRate())
-                        .build())
-                .toList();
-    }
-
-    @PostMapping
-    public ResponseEntity<Consultant> createConsultant(@RequestBody Consultant consultant) {
-        Consultant saved = service.createConsultant(consultant);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    public List<ConsultantDto> listarConsultores() {
+        return service.findAll();
     }
 }

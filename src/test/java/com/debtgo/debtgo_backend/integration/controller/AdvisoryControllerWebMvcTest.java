@@ -11,9 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,31 +29,31 @@ public class AdvisoryControllerWebMvcTest {
     @Autowired
     ObjectMapper mapper;
 
-    @MockBean
     AdvisoryService advisoryService;
 
     @Test
     void createAdvisory_returns200AndDto() throws Exception {
-        // Arrange
-        // JSON que matchea con tu AdvisoryDto (tiene title/description y .toEntity() en el controller)
-        String body = """
-        {
-          "title": "Nueva Asesoría",
-          "description": "Descripción de prueba"
-        }
-        """;
 
-        Advisory saved = Advisory.builder().id(10L).title("Nueva Asesoría").description("Descripción de prueba").build();
-        AdvisoryResponseDto dto = new AdvisoryResponseDto(10L, "Nueva Asesoría", "Descripción de prueba", "PENDING", null);
+        String body = """
+                {
+                  "title": "Nueva Asesoría",
+                  "description": "Descripción de prueba"
+                }
+                """;
+
+        Advisory saved = Advisory.builder().id(10L).title("Nueva Asesoría").description("Descripción de prueba")
+                .build();
+        AdvisoryResponseDto dto = new AdvisoryResponseDto(10L, "Nueva Asesoría", "Descripción de prueba", "PENDING",
+                null);
 
         Mockito.when(advisoryService.createAdvisory(eq(123L), any(Advisory.class))).thenReturn(saved);
         Mockito.when(advisoryService.toDto(saved)).thenReturn(dto);
 
         // Act & Assert
         mvc.perform(post("/api/advisories")
-                        .param("entrepreneurId", "123")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
+                .param("entrepreneurId", "123")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(10))
@@ -67,14 +65,14 @@ public class AdvisoryControllerWebMvcTest {
     void createAdvisory_missingEntrepreneurId_returns400() throws Exception {
         // Arrange
         String body = """
-        { "title": "X", "description": "Y" }
-        """;
+                { "title": "X", "description": "Y" }
+                """;
 
         // Act & Assert
         mvc.perform(post("/api/advisories")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest()); // falta @RequestParam requerido
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -111,7 +109,7 @@ public class AdvisoryControllerWebMvcTest {
 
         // Act & Assert
         mvc.perform(put("/api/advisories/{id}/assign", 9L)
-                        .param("consultantId", "55"))
+                .param("consultantId", "55"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(9))
                 .andExpect(jsonPath("$.status").value("ACCEPTED"))
@@ -125,9 +123,8 @@ public class AdvisoryControllerWebMvcTest {
 
         // Act & Assert
         mvc.perform(put("/api/advisories/{id}/assign", 111L)
-                        .param("consultantId", "222"))
+                .param("consultantId", "222"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Assignment failed")));
     }
-
 }

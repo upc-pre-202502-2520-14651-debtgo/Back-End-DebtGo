@@ -15,6 +15,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    private String name;
+
     @Column(nullable = false)
     private String role; // ENTREPRENEUR o CONSULTANT
 
@@ -23,15 +25,24 @@ public class User {
     }
 
     // Constructor con parámetros
-    public User(String email, String password, String role) {
+    public User(String email, String password, String role, String name) {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.name = name;
     }
 
     // Getters y setters
     public Long getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setId(Long id) {
