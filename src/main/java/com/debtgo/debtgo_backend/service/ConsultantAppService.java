@@ -17,180 +17,188 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ConsultantAppService {
 
-    private final ConsultantRepository consultantRepository;
-    private final ConsultantServiceRepository consultantServiceRepository;
-    private final ConsultantRequestRepository requestRepo;
+        private final ConsultantRepository consultantRepository;
+        private final ConsultantServiceRepository consultantServiceRepository;
+        private final ConsultantRequestRepository requestRepo;
 
-    // ===================== PERFIL =====================
-    public ConsultantDto getConsultant(Long id) {
-        Consultant c = consultantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Consultor no encontrado"));
-        return map(c);
-    }
+        // ===================== PERFIL =====================
+        public ConsultantDto getConsultant(Long id) {
+                Consultant c = consultantRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Consultor no encontrado"));
+                return map(c);
+        }
 
-    public ConsultantDto updateConsultant(Long id, ConsultantDto dto) {
-        Consultant c = consultantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Consultor no encontrado"));
+        public ConsultantDto updateConsultant(Long id, ConsultantDto dto) {
+                Consultant c = consultantRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Consultor no encontrado"));
 
-        c.setFullName(dto.getFullName());
-        c.setSpecialty(dto.getSpecialty());
-        c.setExperience(dto.getExperience());
-        c.setDescription(dto.getDescription());
-        c.setHourlyRate(dto.getHourlyRate());
-        c.setProfileImage(dto.getProfileImage());
-        c.setRating(dto.getRating());
+                c.setFullName(dto.getFullName());
+                c.setSpecialty(dto.getSpecialty());
+                c.setExperience(dto.getExperience());
+                c.setDescription(dto.getDescription());
+                c.setHourlyRate(dto.getHourlyRate());
+                c.setProfileImage(dto.getProfileImage());
+                c.setRating(dto.getRating());
 
-        return map(consultantRepository.save(c));
-    }
+                return map(consultantRepository.save(c));
+        }
 
-    // ===================== RESUMEN =====================
-    public ConsultantSummaryDto getSummary(Long id) {
+        // ===================== RESUMEN =====================
+        public ConsultantSummaryDto getSummary(Long id) {
 
-        long services = consultantServiceRepository.findByConsultantId(id).size();
-        List<ConsultantRequest> cases = requestRepo.findByConsultantId(id);
+                long services = consultantServiceRepository.findByConsultantId(id).size();
+                List<ConsultantRequest> cases = requestRepo.findByConsultantId(id);
 
-        long active = cases.stream().filter(r -> "IN_PROGRESS".equals(r.getStatus())).count();
-        long served = cases.stream().filter(r -> "COMPLETED".equals(r.getStatus())).count();
-        double rating = consultantRepository.findById(id)
-                .map(Consultant::getRating)
-                .orElse(4.5);
+                long active = cases.stream().filter(r -> "IN_PROGRESS".equals(r.getStatus())).count();
+                long served = cases.stream().filter(r -> "COMPLETED".equals(r.getStatus())).count();
+                double rating = consultantRepository.findById(id)
+                                .map(Consultant::getRating)
+                                .orElse(4.5);
 
-        return ConsultantSummaryDto.builder()
-                .servedClients(served)
-                .activeAdvisories(active)
-                .publishedServices(services)
-                .avgRating(rating)
-                .build();
-    }
+                return ConsultantSummaryDto.builder()
+                                .servedClients(served)
+                                .activeAdvisories(active)
+                                .publishedServices(services)
+                                .avgRating(rating)
+                                .build();
+        }
 
-    // ===================== SERVICIOS =====================
-    public List<ConsultantServiceDto> byConsultant(Long id) {
-        return consultantServiceRepository.findByConsultantId(id)
-                .stream()
-                .map(this::mapService)
-                .toList();
-    }
+        // ===================== SERVICIOS =====================
+        public List<ConsultantServiceDto> byConsultant(Long id) {
+                return consultantServiceRepository.findByConsultantId(id)
+                                .stream()
+                                .map(this::mapService)
+                                .toList();
+        }
 
-    public ConsultantServiceDto createService(ConsultantServiceDto dto) {
-        Consultant c = consultantRepository.findById(dto.getConsultantId())
-                .orElseThrow(() -> new RuntimeException("Consultor no encontrado"));
+        public ConsultantServiceDto createService(ConsultantServiceDto dto) {
+                Consultant c = consultantRepository.findById(dto.getConsultantId())
+                                .orElseThrow(() -> new RuntimeException("Consultor no encontrado"));
 
-        ConsultantServiceEntity s = ConsultantServiceEntity.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .consultant(c)
-                .build();
+                ConsultantServiceEntity s = ConsultantServiceEntity.builder()
+                                .title(dto.getTitle())
+                                .description(dto.getDescription())
+                                .price(dto.getPrice())
+                                .consultant(c)
+                                .build();
 
-        return mapService(consultantServiceRepository.save(s));
-    }
+                return mapService(consultantServiceRepository.save(s));
+        }
 
-    public ConsultantServiceDto updateService(Long id, ConsultantServiceDto dto) {
-        ConsultantServiceEntity s = consultantServiceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
+        public ConsultantServiceDto updateService(Long id, ConsultantServiceDto dto) {
+                ConsultantServiceEntity s = consultantServiceRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
 
-        s.setTitle(dto.getTitle());
-        s.setDescription(dto.getDescription());
-        s.setPrice(dto.getPrice());
+                s.setTitle(dto.getTitle());
+                s.setDescription(dto.getDescription());
+                s.setPrice(dto.getPrice());
 
-        return mapService(consultantServiceRepository.save(s));
-    }
+                return mapService(consultantServiceRepository.save(s));
+        }
 
-    public void deleteService(Long id) {
-        consultantServiceRepository.deleteById(id);
-    }
+        public void deleteService(Long id) {
+                consultantServiceRepository.deleteById(id);
+        }
 
-    // ===================== CASOS =====================
-    public List<ConsultantRequest> cases(Long consultantId) {
-        return requestRepo.findByConsultantId(consultantId);
-    }
+        // ===================== CASOS =====================
+        public List<ConsultantRequest> cases(Long consultantId) {
+                return requestRepo.findByConsultantId(consultantId);
+        }
 
-    public void updateCaseStatus(Long id, String status) {
-        ConsultantRequest r = requestRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Caso no encontrado"));
+        public void updateCaseStatus(Long id, String status) {
+                ConsultantRequest r = requestRepo.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Caso no encontrado"));
 
-        r.setStatus(status);
-        requestRepo.save(r);
-    }
+                r.setStatus(status);
+                requestRepo.save(r);
+        }
 
-    // ===================== METRICAS =====================
-    public Map<String, Object> metrics(Long id) {
-        List<ConsultantRequest> list = requestRepo.findByConsultantId(id);
+        // ===================== METRICAS =====================
+        public Map<String, Object> metrics(Long id) {
+                List<ConsultantRequest> list = requestRepo.findByConsultantId(id);
 
-        long sessions = list.stream()
-                .filter(r -> "COMPLETED".equals(r.getStatus()))
-                .count();
+                long sessions = list.stream()
+                                .filter(r -> "COMPLETED".equals(r.getStatus()))
+                                .count();
 
-        double revenue = consultantServiceRepository.findByConsultantId(id)
-                .stream()
-                .mapToDouble(ConsultantServiceEntity::getPrice)
-                .sum();
+                double revenue = consultantServiceRepository.findByConsultantId(id)
+                                .stream()
+                                .mapToDouble(ConsultantServiceEntity::getPrice)
+                                .sum();
 
-        double avgRating = consultantRepository.findById(id)
-                .map(Consultant::getRating)
-                .orElse(4.5);
+                double avgRating = consultantRepository.findById(id)
+                                .map(Consultant::getRating)
+                                .orElse(4.5);
 
-        double compliance = list.isEmpty() ? 0 : (sessions * 100.0 / list.size());
+                double compliance = list.isEmpty() ? 0 : (sessions * 100.0 / list.size());
 
-        return Map.of(
-                "sessions", sessions,
-                "revenue", revenue,
-                "avgRating", avgRating,
-                "compliance", Math.round(compliance * 100.0) / 100.0);
-    }
+                return Map.of(
+                                "sessions", sessions,
+                                "revenue", revenue,
+                                "avgRating", avgRating,
+                                "compliance", Math.round(compliance * 100.0) / 100.0);
+        }
 
-    // ===================== MAPEO =====================
-    private ConsultantDto map(Consultant c) {
-        return ConsultantDto.builder()
-                .id(c.getId())
-                .fullName(c.getFullName())
-                .specialty(c.getSpecialty())
-                .experience(c.getExperience())
-                .description(c.getDescription())
-                .profileImage(c.getProfileImage())
-                .rating(c.getRating())
-                .hourlyRate(c.getHourlyRate())
-                .build();
-    }
+        // ===================== MAPEO =====================
+        private ConsultantDto map(Consultant c) {
+                return ConsultantDto.builder()
+                                .id(c.getId())
+                                .fullName(c.getFullName())
+                                .specialty(c.getSpecialty())
+                                .experience(c.getExperience())
+                                .description(c.getDescription())
+                                .profileImage(c.getProfileImage())
+                                .rating(c.getRating())
+                                .hourlyRate(c.getHourlyRate())
+                                .build();
+        }
 
-    private ConsultantServiceDto mapService(ConsultantServiceEntity s) {
-        return ConsultantServiceDto.builder()
-                .id(s.getId())
-                .title(s.getTitle())
-                .description(s.getDescription())
-                .price(s.getPrice())
-                .consultantId(s.getConsultant().getId())
-                .build();
-    }
+        private ConsultantServiceDto mapService(ConsultantServiceEntity s) {
+                return ConsultantServiceDto.builder()
+                                .id(s.getId())
+                                .title(s.getTitle())
+                                .description(s.getDescription())
+                                .price(s.getPrice())
+                                .consultantId(s.getConsultant().getId())
+                                .build();
+        }
 
-    // ===================== CONSULTANT FINDER =====================
-    public Consultant findConsultantById(Long id) {
-        return consultantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Consultant not found"));
-    }
+        // ===================== CONSULTANT FINDER =====================
+        public Consultant findConsultantById(Long id) {
+                return consultantRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Consultant not found"));
+        }
 
-    public List<ConsultantDto> findAll() {
+        public List<ConsultantDto> findAll() {
+                return consultantRepository.findAll()
+                                .stream()
+                                .map(this::toDto)
+                                .toList();
+        }
 
-        return consultantRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .toList();
-    }
+        private ConsultantDto toDto(Consultant c) {
+                return ConsultantDto.builder()
+                                .id(c.getId())
+                                .fullName(c.getFullName())
+                                .specialty(c.getSpecialty())
+                                .description(c.getDescription())
+                                .rating(c.getRating())
+                                .hourlyRate(c.getHourlyRate())
+                                .profileImage(c.getProfileImage())
+                                .build();
+        }
 
-    private ConsultantDto toDto(Consultant c) {
-        return ConsultantDto.builder()
-                .id(c.getId())
-                .fullName(c.getFullName())
-                .specialty(c.getSpecialty())
-                .description(c.getDescription())
-                .rating(c.getRating())
-                .hourlyRate(c.getHourlyRate())
-                .profileImage(c.getProfileImage())
-                .build();
-    }
+        // ===================== SERVICIOS (CORREGIDO) =====================
+        public List<ConsultantServiceDto> getServices(Long consultantId) {
+                return consultantServiceRepository.findByConsultantId(consultantId)
+                                .stream()
+                                .map(this::mapService)
+                                .collect(Collectors.toList());
+        }
 }

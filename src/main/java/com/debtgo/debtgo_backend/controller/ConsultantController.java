@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/consultants")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*") // Mejora para deploy
 public class ConsultantController {
 
     private final ConsultantAppService service;
@@ -35,7 +35,7 @@ public class ConsultantController {
 
     @GetMapping("/{id}/services")
     public List<ConsultantServiceDto> listServices(@PathVariable Long id) {
-        return service.byConsultant(id);
+        return service.getServices(id);
     }
 
     @PostMapping("/services")
@@ -47,6 +47,7 @@ public class ConsultantController {
     public ConsultantServiceDto updateService(
             @PathVariable Long id,
             @RequestBody ConsultantServiceDto dto) {
+
         return service.updateService(id, dto);
     }
 
