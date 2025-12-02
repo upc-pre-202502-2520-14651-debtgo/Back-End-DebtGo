@@ -69,4 +69,14 @@ public class EducationController {
                                 .map(EducationHighlightDto::getVideoLink)
                                 .toList();
         }
+
+        /**
+         * ================================
+         * DETALLE POR ID
+         * =================================
+         */
+        @GetMapping("/{id}")
+        public EducationHighlightDto obtener(@PathVariable Long id) {
+                return educationService.obtenerPorId(id);
+        }
 }
