@@ -19,4 +19,17 @@ public class ReviewResponseDto {
 
     private String reply;
     private String date;
+
+    public ReviewResponseDto(
+            Long id,
+            int rating,
+            String comment,
+            Long consultantId,
+            String consultantName) {
+        this.id = id;
+        this.rating = rating;
+        this.comment = comment;
+        this.consultantId = consultantId;
+        this.consultantName = consultantName;
+    }
 }
