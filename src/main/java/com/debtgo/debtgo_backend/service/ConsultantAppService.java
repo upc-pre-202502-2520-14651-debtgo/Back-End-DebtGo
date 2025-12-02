@@ -27,7 +27,9 @@ public class ConsultantAppService {
         private final ConsultantServiceRepository consultantServiceRepository;
         private final ConsultantRequestRepository requestRepo;
 
-        // ===================== PERFIL =====================
+        // ============================================================
+        // PERFIL
+        // ============================================================
         public ConsultantDto getConsultant(Long id) {
                 Consultant c = consultantRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException("Consultor no encontrado"));
@@ -49,7 +51,9 @@ public class ConsultantAppService {
                 return map(consultantRepository.save(c));
         }
 
-        // ===================== RESUMEN =====================
+        // ============================================================
+        // RESUMEN DEL CONSULTOR
+        // ============================================================
         public ConsultantSummaryDto getSummary(Long id) {
 
                 long services = consultantServiceRepository.findByConsultantId(id).size();
@@ -69,12 +73,14 @@ public class ConsultantAppService {
                                 .build();
         }
 
-        // ===================== SERVICIOS =====================
-        public List<ConsultantServiceDto> byConsultant(Long id) {
-                return consultantServiceRepository.findByConsultantId(id)
+        // ============================================================
+        // SERVICIOS POR CONSULTOR
+        // ============================================================
+        public List<ConsultantServiceDto> getServices(Long consultantId) {
+                return consultantServiceRepository.findByConsultantId(consultantId)
                                 .stream()
                                 .map(this::mapService)
-                                .toList();
+                                .collect(Collectors.toList());
         }
 
         public ConsultantServiceDto createService(ConsultantServiceDto dto) {
@@ -106,7 +112,9 @@ public class ConsultantAppService {
                 consultantServiceRepository.deleteById(id);
         }
 
-        // ===================== CASOS =====================
+        // ============================================================
+        // CASOS / SOLICITUDES
+        // ============================================================
         public List<ConsultantRequest> cases(Long consultantId) {
                 return requestRepo.findByConsultantId(consultantId);
         }
@@ -119,7 +127,9 @@ public class ConsultantAppService {
                 requestRepo.save(r);
         }
 
-        // ===================== METRICAS =====================
+        // ============================================================
+        // MÉTRICAS
+        // ============================================================
         public Map<String, Object> metrics(Long id) {
                 List<ConsultantRequest> list = requestRepo.findByConsultantId(id);
 
@@ -145,7 +155,41 @@ public class ConsultantAppService {
                                 "compliance", Math.round(compliance * 100.0) / 100.0);
         }
 
-        // ===================== MAPEO =====================
+        // ============================================================
+        // BUSCAR CONSULTOR POR ID
+        // ============================================================
+        public Consultant findConsultantById(Long id) {
+                return consultantRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Consultant not found"));
+        }
+
+        // ============================================================
+        // LISTA GENERAL DE CONSULTANTS
+        // ============================================================
+        public List<ConsultantDto> findAll() {
+                return consultantRepository.findAll()
+                                .stream()
+                                .map(this::toDto)
+                                .toList();
+        }
+
+        // ============================================================
+        // ❗❗ NUEVO: CONSULTANTS POR USUARIO (lo pide tu FRONTEND)
+        // ============================================================
+        public List<ConsultantDto> findAllByUser(Long userId) {
+
+                // Si en el futuro quieres filtrar consultores según el usuario,
+                // aquí puedes aplicar tu lógica de negocio.
+
+                return consultantRepository.findAll()
+                                .stream()
+                                .map(this::toDto)
+                                .toList();
+        }
+
+        // ============================================================
+        // MAPEO
+        // ============================================================
         private ConsultantDto map(Consultant c) {
                 return ConsultantDto.builder()
                                 .id(c.getId())
@@ -157,29 +201,6 @@ public class ConsultantAppService {
                                 .rating(c.getRating())
                                 .hourlyRate(c.getHourlyRate())
                                 .build();
-        }
-
-        private ConsultantServiceDto mapService(ConsultantServiceEntity s) {
-                return ConsultantServiceDto.builder()
-                                .id(s.getId())
-                                .title(s.getTitle())
-                                .description(s.getDescription())
-                                .price(s.getPrice())
-                                .consultantId(s.getConsultant().getId())
-                                .build();
-        }
-
-        // ===================== CONSULTANT FINDER =====================
-        public Consultant findConsultantById(Long id) {
-                return consultantRepository.findById(id)
-                                .orElseThrow(() -> new RuntimeException("Consultant not found"));
-        }
-
-        public List<ConsultantDto> findAll() {
-                return consultantRepository.findAll()
-                                .stream()
-                                .map(this::toDto)
-                                .toList();
         }
 
         private ConsultantDto toDto(Consultant c) {
@@ -194,11 +215,13 @@ public class ConsultantAppService {
                                 .build();
         }
 
-        // ===================== SERVICIOS (CORREGIDO) =====================
-        public List<ConsultantServiceDto> getServices(Long consultantId) {
-                return consultantServiceRepository.findByConsultantId(consultantId)
-                                .stream()
-                                .map(this::mapService)
-                                .collect(Collectors.toList());
+        private ConsultantServiceDto mapService(ConsultantServiceEntity s) {
+                return ConsultantServiceDto.builder()
+                                .id(s.getId())
+                                .title(s.getTitle())
+                                .description(s.getDescription())
+                                .price(s.getPrice())
+                                .consultantId(s.getConsultant().getId())
+                                .build();
         }
 }

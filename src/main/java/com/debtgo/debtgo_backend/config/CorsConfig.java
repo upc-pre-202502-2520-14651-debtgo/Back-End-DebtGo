@@ -16,11 +16,11 @@ public class CorsConfig {
 
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "http://localhost:4200",
-                                "https://frontend-debtgo.netlify.app")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                                "https://frontend-debtgo.netlify.app",
+                                "http://localhost:4200")
+                        .allowedMethods("*")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowCredentials(false);
             }
         };
     }
