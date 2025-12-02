@@ -9,14 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewDto {
-    private int rating; // de 1 a 5
+    private int rating; // 1 a 5
     private String comment;
 
-    // Convierte el DTO en entidad
     public Review toEntity() {
-        Review review = new Review();
-        review.setRating(this.rating);
-        review.setComment(this.comment);
-        return review;
+        Review r = new Review();
+        r.setRating(rating);
+        r.setComment(comment);
+        return r;
     }
 }

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/v1/reviews")
 public class ReviewController {
 
     private final ReviewService reviewService;
@@ -20,22 +20,28 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
+    // Crear reseña
     @PostMapping
-    public ResponseEntity<ReviewResponseDto> createReview(@RequestParam Long entrepreneurId,
+    public ResponseEntity<ReviewResponseDto> createReview(
+            @RequestParam Long entrepreneurId,
             @RequestParam Long consultantId,
             @RequestBody ReviewDto dto) {
+
         Review saved = reviewService.createReview(entrepreneurId, consultantId, dto.toEntity());
         return ResponseEntity.ok(reviewService.toDto(saved));
     }
 
+    // Responder reseña
     @PutMapping("/{id}/reply")
     public ResponseEntity<ReviewResponseDto> replyToReview(
             @PathVariable Long id,
             @RequestBody String reply) {
+
         Review updated = reviewService.addReply(id, reply);
         return ResponseEntity.ok(reviewService.toDto(updated));
     }
 
+    // Obtener todas las reseñas
     @GetMapping
     public ResponseEntity<List<ReviewResponseDto>> getAllReviews() {
         return ResponseEntity.ok(
@@ -45,6 +51,7 @@ public class ReviewController {
                         .toList());
     }
 
+    // Obtener reseñas por CONSULTOR
     @GetMapping("/consultant/{consultantId}")
     public ResponseEntity<List<ReviewResponseDto>> getByConsultant(@PathVariable Long consultantId) {
         return ResponseEntity.ok(
@@ -53,5 +60,4 @@ public class ReviewController {
                         .map(reviewService::toDto)
                         .toList());
     }
-
 }

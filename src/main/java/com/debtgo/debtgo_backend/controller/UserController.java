@@ -2,18 +2,16 @@ package com.debtgo.debtgo_backend.controller;
 
 import com.debtgo.debtgo_backend.domain.Consultant;
 import com.debtgo.debtgo_backend.domain.user.User;
+import com.debtgo.debtgo_backend.domain.profile.EntrepreneurProfile;
 import com.debtgo.debtgo_backend.dto.LoginRequest;
 import com.debtgo.debtgo_backend.dto.RegisterRequest;
-import com.debtgo.debtgo_backend.repository.UserRepository;
-import com.debtgo.debtgo_backend.repository.ConsultantRepository;
+import com.debtgo.debtgo_backend.repository.*;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -23,6 +21,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final ConsultantRepository consultantRepository;
+    private final EntrepreneurProfileRepository entrepreneurRepo;
 
     // ----------------------
     // REGISTRO
@@ -38,6 +37,9 @@ public class UserController {
 
         User saved = userRepository.save(user);
 
+        // ============================
+        // CREAR PERFIL SI ES CONSULTOR
+        // ============================
         if ("CONSULTANT".equalsIgnoreCase(saved.getRole())) {
 
             Consultant c = Consultant.builder()
@@ -51,6 +53,19 @@ public class UserController {
                     .build();
 
             consultantRepository.save(c);
+        }
+
+        // ============================
+        // CREAR PERFIL SI ES EMPRENDEDOR
+        // ============================
+        if ("ENTREPRENEUR".equalsIgnoreCase(saved.getRole())) {
+
+            EntrepreneurProfile ep = new EntrepreneurProfile();
+            ep.setName(req.getName());
+            ep.setEmail(req.getEmail());
+            ep.setPhone("Sin número");
+
+            entrepreneurRepo.save(ep);
         }
 
         Map<String, Object> body = new HashMap<>();
@@ -76,10 +91,14 @@ public class UserController {
         }
 
         Long consultantId = null;
+
         if ("CONSULTANT".equals(user.getRole())) {
-            consultantId = consultantRepository.findById(user.getId())
-                    .map(Consultant::getId)
-                    .orElse(null);
+            Optional<Consultant> consultant = consultantRepository.findAll()
+                    .stream()
+                    .filter(c -> c.getFullName().equalsIgnoreCase(user.getName()))
+                    .findFirst();
+
+            consultantId = consultant.map(Consultant::getId).orElse(null);
         }
 
         Map<String, Object> body = new HashMap<>();
