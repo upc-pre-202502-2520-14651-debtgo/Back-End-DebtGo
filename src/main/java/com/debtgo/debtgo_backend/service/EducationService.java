@@ -38,4 +38,11 @@ public class EducationService {
                 e.getPdfLink(),
                 e.getVideoLink());
     }
+
+    public List<String> listarVideos() {
+        return educationRepo.findAll()
+                .stream()
+                .map(EducationHighlight::getVideoLink)
+                .toList();
+    }
 }
