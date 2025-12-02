@@ -85,4 +85,21 @@ public class ConsultantAppService {
                                 .hourlyRate(c.getHourlyRate())
                                 .build();
         }
+
+        public void updateCaseStatus(Long id, String status) {
+                ConsultantRequest r = requestRepo.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Caso no encontrado"));
+
+                r.setStatus(status);
+                requestRepo.save(r);
+        }
+
+        public Consultant findConsultantById(Long id) {
+                return consultantRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Consultor no encontrado"));
+        }
+
+        public List<ConsultantRequest> cases(Long consultantId) {
+                return requestRepo.findByConsultantId(consultantId);
+        }
 }
