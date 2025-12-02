@@ -24,7 +24,8 @@ public class ConsultantApplicationService {
     }
 
     public ConsultantServiceEntity update(Long id, ConsultantServiceEntity data) {
-        ConsultantServiceEntity s = repository.findById(id).orElseThrow();
+        ConsultantServiceEntity s = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Service not found"));
         s.setTitle(data.getTitle());
         s.setDescription(data.getDescription());
         s.setPrice(data.getPrice());

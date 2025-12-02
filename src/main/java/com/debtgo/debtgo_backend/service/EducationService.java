@@ -1,6 +1,6 @@
 package com.debtgo.debtgo_backend.service;
 
-import com.debtgo.debtgo_backend.dto.home.EducationHighlightDto;
+import com.debtgo.debtgo_backend.dto.EducationHighlightDto;
 import com.debtgo.debtgo_backend.domain.education.EducationHighlight;
 import com.debtgo.debtgo_backend.repository.EducationHighlightRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +16,17 @@ public class EducationService {
     private final EducationHighlightRepository educationRepo;
 
     public List<EducationHighlightDto> listarRecursos() {
-        List<EducationHighlight> list = educationRepo.findAll();
-        return list.stream().map(this::convertirADto).collect(Collectors.toList());
+        return educationRepo.findAll()
+                .stream()
+                .map(this::convertirADto)
+                .collect(Collectors.toList());
+    }
+
+    public EducationHighlightDto obtenerPorId(Long id) {
+        EducationHighlight e = educationRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Recurso no encontrado con ID: " + id));
+
+        return convertirADto(e);
     }
 
     private EducationHighlightDto convertirADto(EducationHighlight e) {
@@ -28,11 +37,5 @@ public class EducationService {
                 e.getLevel(),
                 e.getPdfLink(),
                 e.getVideoLink());
-    }
-
-    public EducationHighlightDto obtenerPorId(Long id) {
-        EducationHighlight e = educationRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Recurso no encontrado con ID: " + id));
-        return convertirADto(e);
     }
 }
