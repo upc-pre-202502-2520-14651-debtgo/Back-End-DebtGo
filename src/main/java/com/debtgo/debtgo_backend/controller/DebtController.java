@@ -10,8 +10,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/debts")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 public class DebtController {
 
     private final DebtService debtService;
@@ -26,7 +26,6 @@ public class DebtController {
         return debtService.getAllDebts();
     }
 
-    // ✅ Nuevo endpoint para crear deuda
     @PostMapping("/create")
     public Debt createDebt(@RequestBody DebtSummaryDto dto) {
         return debtService.createDebt(dto);

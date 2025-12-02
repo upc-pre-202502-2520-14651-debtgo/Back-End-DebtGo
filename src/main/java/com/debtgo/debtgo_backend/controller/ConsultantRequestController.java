@@ -13,8 +13,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/requests")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
 public class ConsultantRequestController {
 
     private final ConsultantAppService service;
@@ -32,11 +32,10 @@ public class ConsultantRequestController {
 
     @PostMapping
     public ResponseEntity<ConsultantRequest> createRequest(@RequestBody ConsultantRequest request) {
-        // Carga el consultor completo desde la BD usando su ID
+
         Consultant consultant = service.findConsultantById(request.getConsultant().getId());
         request.setConsultant(consultant);
 
-        // Guarda la solicitud con el consultor completo
         ConsultantRequest saved = requestRepository.save(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);

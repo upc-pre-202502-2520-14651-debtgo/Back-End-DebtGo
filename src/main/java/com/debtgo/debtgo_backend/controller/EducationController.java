@@ -1,58 +1,35 @@
 package com.debtgo.debtgo_backend.controller;
 
 import com.debtgo.debtgo_backend.dto.home.EducationHighlightDto;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/v1/education")
-@RequiredArgsConstructor
+@RequestMapping("/api/education")
 @CrossOrigin(origins = "*")
 public class EducationController {
 
-        // Lista estática simulando BD
-        private static final List<EducationHighlightDto> RESOURCES = List.of(
-                        new EducationHighlightDto(
-                                        1L,
-                                        "Deudas",
-                                        "Cómo reducir tus deudas",
-                                        "Básico",
-                                        "https://www.sbs.gob.pe/portals/3/educacion-financiera-pdf/guia_domina_tus_finanzas.pdf",
-                                        "https://www.youtube.com/embed/65seo9wDGA8"),
-                        new EducationHighlightDto(
-                                        2L,
-                                        "Ahorro",
-                                        "Estrategias de ahorro mensual",
-                                        "Intermedio",
-                                        "https://repositorio.minedu.gob.pe/bitstream/handle/20.500.12799/10368/EducacionFinanciera.pdf?sequence=1",
-                                        "https://www.youtube.com/embed/KdiQnd4ER5E"),
-                        new EducationHighlightDto(
-                                        3L,
-                                        "Crédito",
-                                        "Mejora tu score crediticio",
-                                        "Avanzado",
-                                        "https://clasica.gref.org/nuevo/documentacion/manual_educacion_financiera.pdf",
-                                        "https://www.youtube.com/embed/npe1KTdCGHo"),
-                        new EducationHighlightDto(
-                                        4L,
-                                        "Inversiones",
-                                        "Primeros pasos en inversiones seguras",
-                                        "Avanzado",
-                                        "https://publications.iadb.org/publications/spanish/document/EducacionFinancieraInclusion.pdf",
-                                        "https://www.youtube.com/embed/mOnhcibusH8"));
-
         @GetMapping("/highlights")
-        public List<EducationHighlightDto> listarRecursos() {
-                return RESOURCES;
-        }
+        public List<EducationHighlightDto> getHighlights(@RequestParam(defaultValue = "3") int limit) {
 
-        @GetMapping("/{id}")
-        public EducationHighlightDto obtenerPorId(@PathVariable Long id) {
-                return RESOURCES.stream()
-                                .filter(r -> r.getId().equals(id))
-                                .findFirst()
-                                .orElse(null);
+                List<EducationHighlightDto> list = new ArrayList<>();
+
+                list.add(new EducationHighlightDto(
+                                1L, "Deudas", "Cómo reducir tus deudas", "BÁSICO",
+                                "https://finanzas.com/deudas",
+                                "https://www.youtube.com/embed/65seo9wDGA8"));
+
+                list.add(new EducationHighlightDto(
+                                2L, "Ahorro", "Guía de ahorro mensual", "INTERMEDIO",
+                                "https://finanzas.com/ahorro",
+                                "https://www.youtube.com/embed/KdiQnd4ER5E"));
+
+                list.add(new EducationHighlightDto(
+                                3L, "Inversiones", "Primeros pasos en inversiones", "AVANZADO",
+                                "https://finanzas.com/inversiones",
+                                "https://www.youtube.com/embed/mOnhcibusH8"));
+
+                return list.subList(0, Math.min(limit, list.size()));
         }
 }
